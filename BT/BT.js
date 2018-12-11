@@ -2,11 +2,6 @@ const listStudents = [];
 
 class Student {
 
-    constructor(name, age, isFemale){
-        this.name = name;
-        this.age = age;
-        this.isFemale = isFemale;
-    }
     static addStudent(name, age, isFemale) {
         const student = {
             name,
