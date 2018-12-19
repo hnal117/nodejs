@@ -2,11 +2,6 @@ const listStudents = [];
 
 class Student {
 
-    constructor(name, age, isFemale){
-        this.name = name;
-        this.age = age;
-        this.isFemale = isFemale;
-    }
     static addStudent(name, age, isFemale) {
         const student = {
             name,
@@ -17,6 +12,7 @@ class Student {
         //Console.log(student);
     }
     static getStudentByIndex(index) {
+        // if<space>
         if(index != undefined && Number.isInteger(index)) {
             return console.log(listStudents[index]);
         }
@@ -26,20 +22,27 @@ class Student {
         if(name != null) {
             let i = 0;
             for(const item of listStudents) {
+                // space
                 if(item.name == name){
+                    // end comma
                     listStudents.splice(i, 1)
+                    // shouldn't use log in function
                     return console.log('Đã xóa');
                 }
                 i++;
             }
         }
+        //
         return console.log('Không tìm thấy!');
     }
 
     static getIndexStudentByName(name) {
+        // space
         if(name != null) {
             let i = 0;
+            // space
             for(const item of listStudents) {
+                // comma
                 if(item.name == name)
                 return console.log('Vị trí của sinh viên trong mảng: ' + i);
                 i++;
