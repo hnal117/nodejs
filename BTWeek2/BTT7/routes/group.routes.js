@@ -10,5 +10,7 @@ router.get('/groups/:id', validate(validation.getOneGroup), GroupController.getO
 router.post('/groups', validate(validation.addGroup), GroupController.addGroup);
 router.put('/groups/:id', validate(validation.updateGroup), GroupController.updateGroup);
 router.delete('/groups/:id', validate(validation.deleteGroup), GroupController.deleteGroup);
+router.post('/groups/:id', validate(validation.addMemberToGroup), GroupController.addMemberToGroup);
+router.delete('/groups/:id/:memberid', validate(validation.deleteMemberToGroup), GroupController.deleteMemberToGroup);
 
 export default router;

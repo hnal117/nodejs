@@ -10,5 +10,6 @@ router.get('/users/:id',  validate(validation.getOneUser), UserController.getOne
 router.post('/users', validate(validation.addUser), UserController.addUser); // req.body
 router.put('/users/:id', validate(validation.updateUser), UserController.updateUser); // req.body
 router.delete('/users/:id', validate(validation.deleteUser), UserController.deleteUser);
+router.post('/users/login', UserController.login);
 
 export default router;
