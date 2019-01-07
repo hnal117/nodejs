@@ -11,5 +11,6 @@ router.post('/users', validate(validation.addUser), UserController.addUser); // 
 router.put('/users/:id', validate(validation.updateUser), UserController.updateUser); // req.body
 router.delete('/users/:id', validate(validation.deleteUser), UserController.deleteUser);
 router.post('/users/login', UserController.login);
+router.put('/users/changepassword/:id', validate(validation.changePassword), UserController.changePassword);
 
 export default router;

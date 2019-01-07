@@ -34,3 +34,14 @@ exports.deleteUser = {
         id: Joi.string().required()
     }
 };
+
+exports.changePassword = {
+    params: {
+        id: Joi.string().required()
+    },
+    body: {
+        currentPassword: Joi.string().regex(/[a-zA-Z0-9]{3,30}/).required(),
+        newPassword: Joi.string().regex(/[a-zA-Z0-9]{3,30}/).required(),
+        confirmPassword: Joi.string().regex(/[a-zA-Z0-9]{3,30}/).required()
+    }
+};

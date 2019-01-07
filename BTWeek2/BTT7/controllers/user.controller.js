@@ -1,38 +1,46 @@
 import User from '../models/user';
 var md5 = require('md5');
+import JWT from 'jsonwebtoken';
+const bcrypt = require('bcrypt');
+
 
 const UserController = {};
 
+async function verifyToken(token, next) {
+    // const { token } = req.headers;
+    // const token = req.headers.token;
+    if (!token) {
+        return next(new Error('Not found authentication'));
+    }
+    const data = await JWT.verify(token, '77yIw21VsG');
+    const _id = data._id;
+    const user = await User.findById(_id);
+    if (!user) {
+        return next(new Error('User is not found'));
+    }
+}
+
 UserController.getAll = async (req, res, next) => {
     try {
-        //const users = 
-        const users = await User.find({
-            // $or: [
-            //     {
-            //         isDelete: false
-            //     },
-            //     {
-            //         isDelete: null
-            //     }
-            // ]
-        });
+        //const { token } = req.headers;
+        await verifyToken(token, next);
+        // Authenticate user.
+        const users = await User.find();
         return res.json({
             isSuccess: true,
             users
         });
     } catch (err) {
-        // return res.status(400).json({
-        //     isSuccess: false,
-        //     message: err.message,
-        //     error: err
-        // });
         return next(err);
     }
 };
 
+
 UserController.getOneUser = async (req, res, next) => {
     try {
         const id = req.params.id;
+        const { token } = req.headers;
+        verifyToken(token, next);
         const user = await User.findById({ _id: id });
         if (!user) {
             return next(new Error('not found'));
@@ -42,10 +50,6 @@ UserController.getOneUser = async (req, res, next) => {
             user: user
         });
     } catch (err) {
-        // return res.status(400).json({
-        //     isSuccess: false,
-        //     error: err
-        // });
         return next(err);
     }
 };
@@ -53,8 +57,10 @@ UserController.getOneUser = async (req, res, next) => {
 UserController.addUser = async (req, res, next) => {
     try {
         const { password, fullName, gender, email } = req.body;
+        //const password1 = bcrypt.hashSync(password,10);
         const user = new User({
-            password: md5(password),
+            //password: md5(password),
+            password: await bcrypt.hash(password, 10),
             fullName,
             gender,
             email
@@ -66,10 +72,6 @@ UserController.addUser = async (req, res, next) => {
             user: user
         });
     } catch (err) {
-        // return res.status(400).json({
-        //     isSuccess: false,
-        //     error: err
-        // });
         return next(err);
     }
 };
@@ -78,12 +80,15 @@ UserController.updateUser = async (req, res, next) => {
     try {
         const id = req.params.id;
         const data = req.body;
+        const { token } = req.headers;
+        verifyToken(token, next);
         const user = await User.findById(id);
         if (!user) {
             return next(new Error('User not found!'));
         }
         if (req.body.password !== undefined) {
-            user.password = md5(data.password);
+            //user.password = md5(data.password);
+            user.password = await bcrypt.hash(req.body.password, 10);
         }
         user.set(req.body);
         await user.save();
@@ -93,10 +98,6 @@ UserController.updateUser = async (req, res, next) => {
             user: user
         });
     } catch (err) {
-        // return res.status(400).json({
-        //     isSuccess: false,
-        //     error: err
-        // });
         return next(err);
     }
 };
@@ -104,16 +105,10 @@ UserController.updateUser = async (req, res, next) => {
 UserController.deleteUser = async (req, res, next) => {
     try {
         const _id = req.params.id;
-        //const user = await User.findByIdAndDelete(id)
-        // return res.json({
-        //     isSuccess: true
-        // });
+        const { token } = req.headers;
+        verifyToken(token, next);
         const user = await User.findById(_id);
         if (!user) {
-            // return status(400).json({
-            //     isSuccess: false,
-            //     message: 'User is not found!'
-            // });
             return next(new Error('User not found!'));
         }
         user.isDelete = true;
@@ -122,12 +117,7 @@ UserController.deleteUser = async (req, res, next) => {
             isSuccess: true,
             message: 'Delete Success!'
         });
-        //return next(new Error('Success!'));
     } catch (err) {
-        // return res.status(400).json({
-        //     isSuccess: false,
-        //     error: err
-        // });
         return next(err);
     }
 };
@@ -140,11 +130,13 @@ UserController.login = async (req, res, next) => {
         if (!user) {
             return next(new Error('User is not found'));
         }
-        const isCorrectPassword = md5(password) === user.password;
+        //const isCorrectPassword = md5(password) === user.password;
+        const isCorrectPassword = await bcrypt.compare(password, user.password);
         if (!isCorrectPassword) {
             return next(new Error('password is not correct'));
         }
         delete user._doc.password;
+        console.log(user._doc.token);
         return res.json({
             isSuccess: true,
             user
@@ -154,4 +146,30 @@ UserController.login = async (req, res, next) => {
     }
 };
 
+UserController.changePassword = async (req, res, next) => {
+    try {
+        const _id = req.params.id;
+
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+
+        const user = await User.findOne({ _id });
+        // if (!user) {
+        //     return next(new Error('User is not found'));
+        // }
+        if (!(await bcrypt.compare(currentPassword, user.password))) {
+            return next(new Error('password not correct'));
+        }
+        if (newPassword !== confirmPassword) {
+            return next(new Error('confirmPassword not correct'));
+        }
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+        return res.json({
+            isSuccess: true,
+            message: 'password is updated!'
+        });
+    } catch (e) {
+        return next(e);
+    }
+};
 export default UserController;
