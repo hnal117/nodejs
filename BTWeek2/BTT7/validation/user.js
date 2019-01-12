@@ -40,8 +40,8 @@ exports.changePassword = {
         id: Joi.string().required()
     },
     body: {
-        currentPassword: Joi.string().regex(/[a-zA-Z0-9]{3,30}/).required(),
-        newPassword: Joi.string().regex(/[a-zA-Z0-9]{3,30}/).required(),
-        confirmPassword: Joi.string().regex(/[a-zA-Z0-9]{3,30}/).required()
+        currentPassword: Joi.string().min(6).max(30).regex(/[a-zA-Z0-9]{3,30}/).required(),
+        newPassword: Joi.string().min(6).max(30).regex(/[a-zA-Z0-9]{3,30}/).required(),
+        confirmPassword: Joi.string().min(6).max(30).regex(/[a-zA-Z0-9]{3,30}/).required()
     }
 };

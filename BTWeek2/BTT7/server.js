@@ -4,6 +4,7 @@ import connectToDb from './db/connect';
 import user from './routes/user.routes';
 import truck from './routes/truck.routes';
 import group from './routes/group.routes';
+import message from './routes/message.routes';
 //import express-validation from 'express-validation';
 const server = express();
 
@@ -17,6 +18,7 @@ server.use(bodyParser.urlencoded({
 server.use(user);
 server.use(truck);
 server.use(group);
+server.use(message);
 
 server.listen(3000, () => {
     console.log('Server started at: 3000');

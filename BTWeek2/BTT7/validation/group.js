@@ -2,6 +2,13 @@ var Joi = require('joi');
 //Joi.objectId = require('joi-objectid')(Joi);
 //var objectID = require('mongodb').ObjectID;
 
+exports.getAllGroup = {
+    query: {
+        page: Joi.number().min(1).max(50).required(),
+        limit: Joi.number().min(1).max(10).required()
+    }
+};
+
 exports.getOneGroup = {
     params: {
         id: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required()

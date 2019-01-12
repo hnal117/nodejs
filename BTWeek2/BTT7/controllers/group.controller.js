@@ -4,7 +4,27 @@ const GroupController = {};
 
 GroupController.getAll = async (req, res, next) => {
     try {
-        const groups = await group.find().populate('author');
+        const { page, limit } = req.query;
+        const skip = (parseInt(page) - 1)*limit;
+        const groups = await Group.find()
+            .populate([{
+                path: 'author',
+                select: 'email fullName gender'
+                //where: {
+                //    _id:edsfsdf
+                //}
+            }
+                // {
+                //     path: 'members',
+                //     select: 'email fullName gender'
+                //     //where: {
+                //     //    _id:edsfsdf
+                //     //}
+                // }
+            ])
+            .sort({ _id: -1  })
+            .skip( skip)
+            .limit(limit);
         if (!groups) {
             return next(new Error('group not found!'));
         }
@@ -35,21 +55,22 @@ GroupController.getOneGroup = async (req, res, next) => {
 
 GroupController.addGroup = async (req, res, next) => {
     try {
-        const { name, lastMessage, author, members } = req.body;
-        if (!name) {
-            return next(new Error('name is required field!'));
+        const { members, name } = req.body;
+        members.push(req.user._id);
+        const author = req.user._id;
+        const setOfMembers = new Set();
+        for (const member of members) {
+            setOfMembers.add(member);
         }
-        if (!author) {
-            return next(new Error('author is required field!'));
-        }
+        const addedMember = Array.from(setOfMembers);
+
         const group = new Group({
             name,
-            lastMessage,
-            author,
-            members
+            members: addedMember,
+            author
         });
         await group.save();
-        return res.status(200).json({
+        return res.json({
             isSuccess: true,
             group
         });
@@ -136,9 +157,9 @@ GroupController.deleteMemberToGroup = async (req, res, next) => {
         let i = 0;
         for (var item in group.members) {
             console.log(item);
-            
+
             if (item.toString() === memberid) {
-                console.log(typeof(item.toString()) + typeof(memberid));
+                console.log(typeof (item.toString()) + typeof (memberid));
                 console.log('1');
                 group.members.splice(i, 1)
                 await group.save();

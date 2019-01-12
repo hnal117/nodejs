@@ -6,8 +6,8 @@ const bcrypt = require('bcrypt');
 
 const UserController = {};
 
-async function verifyToken(token, next) {
-    // const { token } = req.headers;
+async function verifyToken(req, next) {
+    const { token } = req.headers;
     // const token = req.headers.token;
     if (!token) {
         return next(new Error('Not found authentication'));
@@ -23,7 +23,7 @@ async function verifyToken(token, next) {
 UserController.getAll = async (req, res, next) => {
     try {
         //const { token } = req.headers;
-        await verifyToken(token, next);
+        //await verifyToken(req, next);
         // Authenticate user.
         const users = await User.find();
         return res.json({
@@ -136,10 +136,11 @@ UserController.login = async (req, res, next) => {
             return next(new Error('password is not correct'));
         }
         delete user._doc.password;
-        console.log(user._doc.token);
+        const token = JWT.sign(user._doc, '77yIw21VsG');
         return res.json({
             isSuccess: true,
-            user
+            user,
+            token
         });
     } catch (e) {
         return next(e);
@@ -151,16 +152,16 @@ UserController.changePassword = async (req, res, next) => {
         const _id = req.params.id;
 
         const { currentPassword, newPassword, confirmPassword } = req.body;
-
-        const user = await User.findOne({ _id });
-        // if (!user) {
-        //     return next(new Error('User is not found'));
-        // }
-        if (!(await bcrypt.compare(currentPassword, user.password))) {
-            return next(new Error('password not correct'));
-        }
+        //joi
         if (newPassword !== confirmPassword) {
             return next(new Error('confirmPassword not correct'));
+        }
+        const user = await User.findOne({ _id });
+        if (!user) {
+            return next(new Error('User is not found'));
+        }
+        if (!(await bcrypt.compare(currentPassword, user.password))) {
+            return next(new Error('password not correct'));
         }
         user.password = await bcrypt.hash(newPassword, 10);
         await user.save();
