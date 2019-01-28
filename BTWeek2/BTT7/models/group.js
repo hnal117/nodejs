@@ -7,6 +7,7 @@ let groupSchema = new Schema({
         type: String,
         required: [true, 'name is required field!'],
         maxlength: [255, 'name is too long!'],
+        unique: true
     },
     lastMessage: {
         type: Schema.Types.ObjectId
@@ -22,8 +23,12 @@ let groupSchema = new Schema({
     deletedAt: {
         type: Date,
         default: null
+    },
+    type: {
+        type: String,
+        enum: ['public', 'private']
     }
-});
+}, { timestamps: true });
 
 function checkDeleted(_this) {
     const query = _this.getQuery();

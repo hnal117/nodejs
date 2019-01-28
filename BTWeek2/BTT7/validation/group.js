@@ -18,9 +18,10 @@ exports.getOneGroup = {
 exports.addGroup = {
     body: {
         name: Joi.string().required(),
-        members: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).required(),
-        lastMessage: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
-        author: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required()
+        //type: Joi.string().valid('public', 'private').required().error(() => 'type not valid'),
+        members: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)),
+        lastMessage: Joi.string().regex(/^[0-9a-fA-F]{24}$/)
+        //author: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required()
     }
 };
 

@@ -1,11 +1,11 @@
 import Group from '../models/group';
-
+import helper from '../helper/response-handle';
 const GroupController = {};
 
 GroupController.getAll = async (req, res, next) => {
     try {
         const { page, limit } = req.query;
-        const skip = (parseInt(page) - 1)*limit;
+        const skip = (parseInt(page) - 1) * limit;
         const groups = await Group.find()
             .populate([{
                 path: 'author',
@@ -22,16 +22,17 @@ GroupController.getAll = async (req, res, next) => {
                 //     //}
                 // }
             ])
-            .sort({ _id: -1  })
-            .skip( skip)
+            .sort({ _id: -1 })
+            .skip(skip)
             .limit(limit);
         if (!groups) {
             return next(new Error('group not found!'));
         }
-        return res.status(200).json({
-            isSuccess: true,
-            groups
-        });
+        // return res.status(200).json({
+        //     isSuccess: true,
+        //     groups
+        // });
+        helper.returnSuccess(res, groups);
     } catch (err) {
         return next(err);
     }
@@ -44,10 +45,11 @@ GroupController.getOneGroup = async (req, res, next) => {
         if (!group) {
             return next(new Error('group not found!'));
         }
-        return res.status(200).json({
-            isSuccess: true,
-            group
-        });
+        // return res.status(200).json({
+        //     isSuccess: true,
+        //     group
+        // });
+        helper.returnSuccess(res, group);
     } catch (err) {
         return next(err);
     }
@@ -63,17 +65,25 @@ GroupController.addGroup = async (req, res, next) => {
             setOfMembers.add(member);
         }
         const addedMember = Array.from(setOfMembers);
-
+        var type = '';
+        if (addedMember.length > 2) {
+            type = 'public';
+        }
+        else {
+            type = 'private';
+        }
         const group = new Group({
             name,
             members: addedMember,
-            author
+            author,
+            type
         });
         await group.save();
-        return res.json({
-            isSuccess: true,
-            group
-        });
+        // return res.json({
+        //     isSuccess: true,
+        //     group
+        // });
+        helper.returnSuccess(res, group);
     } catch (err) {
         return next(err);
     }
@@ -95,10 +105,11 @@ GroupController.updateGroup = async (req, res, next) => {
         }
         group.set(req.body);
         await group.save();
-        return res.status(200).json({
-            isSuccess: true,
-            message: 'Update success!',
-        });
+        // return res.status(200).json({
+        //     isSuccess: true,
+        //     message: 'Update success!',
+        // });
+        helper.returnSuccess(res, { message: 'Update success' });
     } catch (err) {
         return next(err);
     }
@@ -113,10 +124,11 @@ GroupController.deleteGroup = async (req, res, next) => {
         }
         group.deletedAt = Date.now();
         await group.save();
-        return res.status(200).json({
-            isSuccess: true,
-            message: 'Delete success!'
-        });
+        // return res.status(200).json({
+        //     isSuccess: true,
+        //     message: 'Delete success!'
+        // });
+        helper.returnSuccess(res, { message: 'Delete Success0' });
     } catch (err) {
         return next(err);
     }
@@ -136,10 +148,11 @@ GroupController.addMemberToGroup = async (req, res, next) => {
         members.map(member => group.members.push(member));
         //console.log(group.members);
         await group.save();
-        return res.status(200).json({
-            isSuccess: true,
-            message: 'Insert success!'
-        });
+        // return res.status(200).json({
+        //     isSuccess: true,
+        //     message: 'Insert success!'
+        // });
+        helper.returnSuccess(res, { message: 'Insert success!' });
     } catch (err) {
         return next(err);
     }
@@ -163,10 +176,11 @@ GroupController.deleteMemberToGroup = async (req, res, next) => {
                 console.log('1');
                 group.members.splice(i, 1)
                 await group.save();
-                return res.status(200).json({
-                    isSuccess: true,
-                    message: 'Delete member success!'
-                });
+                // return res.status(200).json({
+                //     isSuccess: true,
+                //     message: 'Delete member success!'
+                // });
+                helper.returnSuccess(res, { message: 'Delete member success!' });
             }
             i++;
         }

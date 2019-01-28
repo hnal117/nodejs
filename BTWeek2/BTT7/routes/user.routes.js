@@ -13,5 +13,6 @@ router.put('/users/:id', [validate(validation.updateUser), authentication.auth],
 router.delete('/users/:id', [validate(validation.deleteUser), authentication.auth], UserController.deleteUser);
 router.post('/users/login', UserController.login);
 router.put('/users/changepassword/:id', [validate(validation.changePassword), authentication.auth], UserController.changePassword);
-
+router.post('/users/upload', UserController.upload);
+router.post('/users/sendmail', UserController.sendMail);
 export default router;
